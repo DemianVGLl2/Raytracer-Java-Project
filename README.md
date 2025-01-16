@@ -45,3 +45,67 @@ public static void main(String[] args) {
     raytrace(scene01);
     FileManager.saveImage(image, "image_output", "png");
 }
+```
+## Define Objects in the Scene
+
+To create a custom scene, add objects to the `scene01` object, specifying their properties such as position, color, and transformations. For complex models, use the `OBJReader` to load 3D objects. Example:
+
+```java
+// Adding objects to the scene
+scene01.addObject(new Sphere(new Vector3D(0, 0, 10), 2, Color.RED));
+scene01.addObject(new DirectionalLight(new Vector3D(1, -1, -1), Color.WHITE, 0.8));
+```
+
+## 🎨 Example Output
+
+Here are three rendered scenes created with the ray tracer:
+
+1. **Simple Sphere Scene**  
+   ![Simple Sphere Scene](images/scene1.png)
+
+2. **Reflection and Refraction Example**  
+   ![Reflection Example](images/scene2.png)
+
+3. **Complex Model with OBJ Loader**  
+   ![OBJ Scene](images/scene3.png)
+
+---
+
+## 📚 Project Structure
+
+- **`Scene`**: Contains definitions for the camera, lights, and objects.
+- **`RayTracer.java`**: Entry point for configuring and rendering scenes.
+- **`FileManager`**: Handles saving rendered images to disk.
+- **`OBJReader`**: Loads 3D models for inclusion in scenes.
+
+---
+
+## 💡 Rendering Techniques
+
+- **Blinn-Phong Model**: For realistic light interaction on surfaces.
+- **Recursive Ray Tracing**: For accurate reflection and refraction effects.
+- **Transformations**: Rotate and scale objects within the scene.
+
+---
+
+## 🛡️ Usage Notes
+
+- Rendering large scenes or high-resolution images may take time depending on your system's performance.
+- Ensure sufficient memory allocation if handling large OBJ files.
+
+---
+
+## 📧 Contact
+
+For questions or suggestions, feel free to reach out:
+
+**Email**: 0252028@up.edu.mx  
+**Authors**:  
+- Jafet  
+- Demián  
+
+---
+
+## 📜 License
+
+This project is open-source and available under the [MIT License](LICENSE).
