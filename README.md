@@ -99,13 +99,4 @@ Here are three rendered scenes created with the ray tracer:
 
 For questions or suggestions, feel free to reach out:
 
-**Email**: 0252028@up.edu.mx  
-**Authors**:  
-- Jafet  
-- Demián  
-
----
-
-## 📜 License
-
-This project is open-source and available under the [MIT License](LICENSE).
+**Email**: 0253139@up.edu.mx
