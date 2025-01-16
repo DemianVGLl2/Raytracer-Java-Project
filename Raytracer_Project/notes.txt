@@ -1,0 +1,101 @@
+public static Color decideColor(int i, int j, Vector3D[][] posRaytrace, Vector3D pos, Camera mainCamera, List<Object3D> objects,
+                                    double[] nearFarPlanes, double cameraZ, List<Light> lights) {
+        double x = posRaytrace[i][j].getX() + pos.getX();
+        double y = posRaytrace[i][j].getY() + pos.getY();
+        double z = posRaytrace[i][j].getZ() + pos.getZ();
+
+        Ray ray = new Ray(mainCamera.getPosition(), new Vector3D(x, y, z));
+        Intersection closestIntersection = raycast(ray, objects, null,
+                new double[]{cameraZ + nearFarPlanes[0], cameraZ + nearFarPlanes[1]});
+        Color pixelColor = Color.BLACK;
+        int cont = 0;
+        double reflection = 1;
+        if (closestIntersection != null) {
+            do {
+                if (cont != 0){
+                    pixelColor = new Color((int) (pixelColor.getRed()*(1 -closestIntersection.getObject().getReflectivenessIndex())),
+                            (int) (pixelColor.getGreen() *(1 -closestIntersection.getObject().getReflectivenessIndex())),
+                            (int) (pixelColor.getBlue()*(1 -closestIntersection.getObject().getReflectivenessIndex())));
+
+                    Vector3D incident = Vector3D.normalize(Vector3D.substract(closestIntersection.getPosition(), ray.getOrigin()));
+                    Vector3D reflectionVector = Vector3D.substract(incident,
+                            Vector3D.scalarMultiplication(closestIntersection.getNormal(), 2* Vector3D.dotProduct(incident, closestIntersection.getNormal()))
+                    );
+                    ray = new Ray(closestIntersection.getPosition(), Vector3D.normalize(reflectionVector));
+                    closestIntersection = raycast(ray, objects, closestIntersection.getObject(), new double[]{0.0,nearFarPlanes[1]});
+                }
+                if (closestIntersection != null) {
+                    cont += 1;
+                    Color objColor = closestIntersection.getObject().getColor();
+                    for (Light light : lights) {
+                        Ray rayToLight;
+                        Intersection intersectionBeforeLight = null;
+                        if (light.getClass().equals(PointLight.class)) {
+                            rayToLight = new Ray(closestIntersection.getPosition(),
+                                    Vector3D.normalize(
+                                            Vector3D.substract(light.getPosition(), closestIntersection.getPosition())));
+                            intersectionBeforeLight = raycast(rayToLight, objects, closestIntersection.getObject(),
+                                    new double[]{0, Vector3D.magnitude(Vector3D.substract(light.getPosition(), closestIntersection.getPosition()))}
+                            );
+                        } else if (light.getClass().equals(DirectionalLight.class)) {
+                            rayToLight = new Ray(closestIntersection.getPosition(), Vector3D.scalarMultiplication(((DirectionalLight) light).getDirection(), -1));
+                            intersectionBeforeLight = raycast(rayToLight, objects, closestIntersection.getObject(), null);
+                        }
+
+                        if (intersectionBeforeLight == null) {
+                            double nDotL = light.getNDotL(closestIntersection);
+                            Color lightColor = light.getColor();
+                            double intensity = light.getIntensity() * nDotL;
+                            if (light.getClass().equals(PointLight.class)) {
+                                double distance = Vector3D.magnitude(Vector3D.substract(closestIntersection.getPosition(), light.getPosition()));
+                                double diffuse = intensity / Math.pow(distance, 2);
+                                Vector3D L_V = Vector3D.add(ray.getDirection(),
+                                        Vector3D.normalize(Vector3D.substract(closestIntersection.getPosition(), light.getPosition())));
+                                Vector3D H = Vector3D.scalarMultiplication(L_V, 1 / Vector3D.magnitude(L_V));
+
+                                double specular = Math.pow(Vector3D.dotProduct(closestIntersection.getNormal(), H), closestIntersection.getObject().getShininess());
+                                intensity *= diffuse + specular;
+                            } else if (light.getClass().equals(DirectionalLight.class)) {
+                                double distance = Vector3D.magnitude(Vector3D.substract(closestIntersection.getPosition(), light.getPosition()));
+                                double diffuse = intensity / Math.pow(distance, 1);
+                                Vector3D L_V = Vector3D.add(ray.getDirection(),
+                                        Vector3D.normalize(Vector3D.substract(closestIntersection.getPosition(), light.getPosition())));
+                                Vector3D H = Vector3D.scalarMultiplication(L_V, 1 / Vector3D.magnitude(L_V));
+
+                                double specular = Math.pow(Vector3D.dotProduct(closestIntersection.getNormal(), H), closestIntersection.getObject().getShininess());
+                                intensity *= diffuse + specular;
+                            }
+                            double[] lightColors = new double[]{lightColor.getRed() / 255.0, lightColor.getGreen() / 255.0, lightColor.getBlue() / 255.0};
+                            double[] objColors = new double[]{objColor.getRed() / 255.0, objColor.getGreen() / 255.0, objColor.getBlue() / 255.0};
+
+                            for (int colorIndex = 0; colorIndex < objColors.length; colorIndex++) {
+                                objColors[colorIndex] *= intensity * lightColors[colorIndex] * reflection;
+                            }
+                            Color diffuse = new Color(
+                                    (float) Math.clamp(objColors[0], 0.0, 1.0),
+                                    (float) Math.clamp(objColors[1], 0.0, 1.0),
+                                    (float) Math.clamp(objColors[2], 0.0, 1.0));
+                            pixelColor = addColor(pixelColor, diffuse);
+                        }
+                    }
+                    reflection = reflection * (closestIntersection.getObject().getReflectivenessIndex());
+                }
+            } while (cont < 5 && closestIntersection != null && reflection > 0);
+
+        }
+        return pixelColor;
+    }
+
+Vector3D incident = Vector3D.normalize(Vector3D.substract(closestIntersection.getPosition(), ray.getOrigin()));
+if (closestIntersection.getObject().getRefraction() != 0){
+
+    pixelColor = new Color((int) (pixelColor.getRed()*0.5), (int) (pixelColor.getGreen() *0.5), (int) (pixelColor.getBlue()*0.5));
+
+    double cosI = Vector3D.dotProduct(Vector3D.scalarMultiplication(incident, -1), closestIntersection.getNormal());
+    double eta = 1 / closestIntersection.getObject().getRefraction();
+    double sinT2 = Math.pow(eta, 2) * (1.0 - Math.pow(cosI, 2));
+    if (sinT2 <= 1.0) {
+        double cosT = Math.sqrt(1.0 - sinT2);
+        nextRayDirection = Vector3D.add(Vector3D.scalarMultiplication(incident, eta), Vector3D.scalarMultiplication(closestIntersection.getNormal(),eta *cosI - cosT ));
+    }
+}
