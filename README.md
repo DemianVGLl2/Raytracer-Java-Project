@@ -61,13 +61,13 @@ scene01.addObject(new DirectionalLight(new Vector3D(1, -1, -1), Color.WHITE, 0.8
 Here are three rendered scenes created with the ray tracer:
 
 1. **Simple Sphere Scene**  
-   ![Simple Sphere Scene](images/scene1.png)
+   ![Render 1](Render/DemiánVelasco_Render01.png)
 
 2. **Reflection and Refraction Example**  
-   ![Reflection Example](images/scene2.png)
+   ![Render 2](Render/DemiánVelasco_Render02.png)
 
 3. **Complex Model with OBJ Loader**  
-   ![OBJ Scene](images/scene3.png)
+   ![Render 3](Render/DemiánVelasco_Render03.png)
 
 ---
 
