@@ -100,3 +100,10 @@ Here are three rendered scenes created with the ray tracer:
 For questions or suggestions, feel free to reach out:
 
 **Email**: 0253139@up.edu.mx
+
+
+## 🎓 Acknowledgments  
+
+This project was developed as part of the **Multimedia and Computer Graphics** course in the **Bachelor of Systems Engineering and Computer Science** program.
+
+Special thanks to my teacher **Jafet Rodríguez** for their guidance and support throughout the development of this ray tracer.
